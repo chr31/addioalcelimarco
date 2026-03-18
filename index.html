@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Addio al celimarco</title>
+    <style>
+      :root {
+        --bg-1: #fff4d6;
+        --bg-2: #ffd6e7;
+        --bg-3: #c4f1ff;
+        --card: rgba(255, 255, 255, 0.82);
+        --text: #1d1d1f;
+        --accent: #ff5c8a;
+        --accent-2: #2b9eb3;
+        --success: #17633c;
+        --error: #9f1f40;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, var(--bg-3), transparent 35%),
+          radial-gradient(circle at bottom right, #ffe27a, transparent 30%),
+          linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      }
+
+      .card {
+        width: min(100%, 540px);
+        padding: 36px 28px;
+        border-radius: 28px;
+        background: var(--card);
+        box-shadow: 0 20px 60px rgba(31, 33, 46, 0.15);
+        backdrop-filter: blur(12px);
+        text-align: center;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2.2rem, 6vw, 3.6rem);
+        line-height: 1;
+      }
+
+      .subtitle {
+        margin: 0 0 28px;
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+
+      form {
+        display: grid;
+        gap: 14px;
+      }
+
+      .code-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .digit-input {
+        width: 100%;
+        aspect-ratio: 1 / 1.15;
+        border: 2px solid transparent;
+        border-radius: 16px;
+        font-size: 1.6rem;
+        font-weight: 700;
+        text-align: center;
+        background: #fff;
+        transition: border-color 0.2s ease, transform 0.2s ease;
+      }
+
+      .digit-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        transform: translateY(-1px);
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 14px 20px;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #fff;
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: 0 12px 26px rgba(43, 158, 179, 0.28);
+      }
+
+      .message {
+        min-height: 88px;
+        margin-top: 22px;
+        padding: 8px 0 0;
+      }
+
+      .message p {
+        margin: 0;
+      }
+
+      .error {
+        color: var(--error);
+        font-weight: 700;
+        font-size: 1.05rem;
+      }
+
+      .date {
+        color: var(--success);
+        font-size: clamp(2.8rem, 10vw, 5rem);
+        font-weight: 900;
+        letter-spacing: 0.06rem;
+        margin-bottom: 10px;
+      }
+
+      .success-text {
+        font-size: 1.05rem;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 520px) {
+        .code-grid {
+          gap: 8px;
+        }
+
+        .digit-input {
+          font-size: 1.35rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Addio al celimarco</h1>
+      <p class="subtitle">Inserisci il codice segreto a 6 cifre</p>
+
+      <form id="code-form">
+        <div class="code-grid" aria-label="Codice a 6 cifre">
+          <input class="digit-input" type="password" inputmode="numeric" maxlength="1" aria-label="Cifra 1" required />
+          <input class="digit-input" type="password" inputmode="numeric" maxlength="1" aria-label="Cifra 2" required />
+          <input class="digit-input" type="password" inputmode="numeric" maxlength="1" aria-label="Cifra 3" required />
+          <input class="digit-input" type="password" inputmode="numeric" maxlength="1" aria-label="Cifra 4" required />
+          <input class="digit-input" type="password" inputmode="numeric" maxlength="1" aria-label="Cifra 5" required />
+          <input class="digit-input" type="password" inputmode="numeric" maxlength="1" aria-label="Cifra 6" required />
+        </div>
+        <button type="submit">Scopri la verità</button>
+      </form>
+
+      <section id="message" class="message" aria-live="polite"></section>
+    </main>
+
+    <script>
+      const secretCode = "202604";
+      const form = document.getElementById("code-form");
+      const inputs = Array.from(document.querySelectorAll(".digit-input"));
+      const message = document.getElementById("message");
+
+      inputs.forEach((input, index) => {
+        input.addEventListener("input", (event) => {
+          const digit = event.target.value.replace(/\D/g, "").slice(0, 1);
+          event.target.value = digit;
+
+          if (digit && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+        });
+
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Backspace" && !input.value && index > 0) {
+            inputs[index - 1].focus();
+          }
+
+          if (event.key === "ArrowLeft" && index > 0) {
+            inputs[index - 1].focus();
+          }
+
+          if (event.key === "ArrowRight" && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+        });
+
+        input.addEventListener("paste", (event) => {
+          event.preventDefault();
+          const pasted = (event.clipboardData.getData("text") || "").replace(/\D/g, "").slice(0, 6);
+
+          if (!pasted) {
+            return;
+          }
+
+          inputs.forEach((field, fieldIndex) => {
+            field.value = pasted[fieldIndex] || "";
+          });
+
+          const nextIndex = Math.min(pasted.length, inputs.length - 1);
+          inputs[nextIndex].focus();
+        });
+      });
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const value = inputs.map((input) => input.value).join("");
+
+        if (value === secretCode) {
+          message.innerHTML = `
+            <p class="date">17-03-2026</p>
+            <p class="success-text">Ora che conosci una cosi importante verita, un nuovo fastidioso gadget dovrai indossare. Pensa al peggio.</p>
+          `;
+          return;
+        }
+
+        message.innerHTML = `
+          <p class="error">Ci hai provato ma non hai avuto abbastanza coraggio!</p>
+        `;
+      });
+
+      inputs[0].focus();
+    </script>
+  </body>
+</html>
