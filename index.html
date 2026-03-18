@@ -114,6 +114,27 @@
         font-size: 1.05rem;
       }
 
+      .loading {
+        display: grid;
+        gap: 12px;
+        justify-items: center;
+      }
+
+      .spinner {
+        width: 54px;
+        height: 54px;
+        border: 6px solid rgba(255, 92, 138, 0.2);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+      }
+
+      .loading-text {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--accent-2);
+      }
+
       .date {
         color: var(--success);
         font-size: clamp(2.8rem, 10vw, 5rem);
@@ -125,6 +146,12 @@
       .success-text {
         font-size: 1.05rem;
         line-height: 1.45;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
 
       @media (max-width: 520px) {
@@ -160,9 +187,27 @@
 
     <script>
       const secretCode = "202604";
+      const ntfyTopic = "addio-al-celimarco-2026";
       const form = document.getElementById("code-form");
       const inputs = Array.from(document.querySelectorAll(".digit-input"));
       const message = document.getElementById("message");
+
+      async function sendNotification() {
+        try {
+          await fetch(`https://ntfy.sh/${ntfyTopic}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain",
+              Title: "Codice corretto",
+              Priority: "default",
+              Tags: "warning,unlock"
+            },
+            body: "Il codice corretto e stato inserito nella pagina Addio al celimarco."
+          });
+        } catch (error) {
+          console.error("Invio notifica fallito:", error);
+        }
+      }
 
       inputs.forEach((input, index) => {
         input.addEventListener("input", (event) => {
@@ -209,18 +254,37 @@
         event.preventDefault();
 
         const value = inputs.map((input) => input.value).join("");
-
-        if (value === secretCode) {
-          message.innerHTML = `
-            <p class="date">17-03-2026</p>
-            <p class="success-text">Ora che conosci una cosi importante verita, un nuovo fastidioso gadget dovrai indossare. Pensa al peggio.</p>
-          `;
-          return;
-        }
+        const isCorrect = value === secretCode;
 
         message.innerHTML = `
-          <p class="error">Ci hai provato ma non hai avuto abbastanza coraggio!</p>
+          <div class="loading">
+            <div class="spinner" aria-hidden="true"></div>
+            <p class="loading-text">Verifica in corso...</p>
+          </div>
         `;
+
+        inputs.forEach((input) => {
+          input.disabled = true;
+        });
+
+        window.setTimeout(() => {
+          inputs.forEach((input) => {
+            input.disabled = false;
+          });
+
+          if (isCorrect) {
+            sendNotification();
+            message.innerHTML = `
+              <p class="date">17-03-2026</p>
+              <p class="success-text">Ora che conosci una cosi importante verita, un nuovo fastidioso gadget dovrai indossare. Pensa al peggio.</p>
+            `;
+            return;
+          }
+
+          message.innerHTML = `
+            <p class="error">Ci hai provato ma non hai avuto abbastanza coraggio!</p>
+          `;
+        }, 5000);
       });
 
       inputs[0].focus();
