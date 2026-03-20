@@ -148,6 +148,13 @@
         line-height: 1.45;
       }
 
+      .success-alert {
+        margin-bottom: 12px;
+        color: #d11f37;
+        font-size: 1.4rem;
+        font-weight: 900;
+      }
+
       @keyframes spin {
         to {
           transform: rotate(360deg);
@@ -275,7 +282,8 @@
           if (isCorrect) {
             sendNotification();
             message.innerHTML = `
-              <p class="date">17-03-2026</p>
+              <p class="date">27-03-2026</p>
+              <p class="success-alert">Questa volta e quella vera!!</p>
               <p class="success-text">Ora che conosci una cosi importante verita, un nuovo fastidioso gadget dovrai indossare. Pensa al peggio.</p>
             `;
             return;
